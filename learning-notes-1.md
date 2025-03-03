@@ -19,7 +19,7 @@ MDP is a dynamic model consisting of 4 tuple $(State, Action, Reward, Probabilit
 MDP + policy = Markov Reward Process (MRP): $(S, R^\pi, P^\pi, \gamma)$. Policy specifies action to take in each state: $\pi(a|s)$.
 - Reward of a state: $R^\pi = \sum_{a \in A}\pi(a|s) * R(s, a)$
 - Dynamic model of state transition: $P^\pi(s'|s) = \sum_{a \in A}\pi(a|s)P(s'|s, a)$
-- $ \pi^* = argmax_{\pi}V^\pi(s) $
+- $\pi^* = argmax_{\pi}V^\pi(s)$
 - State action value of a policy: $Q^\pi(s, a) = R(s, a) + \gamma \sum_{s' \in S}(P(s'|s)  V^\pi(s'))$. It means the expected reward if we take action `a` then follow policy $\pi$ for follow up actions for future state $s'$. $V^\pi(s)$ is the value of state `s'` following policy $\pi$, which equals to $\sum_{a \in A} Q^\pi(s, a)$.
 
 The policy improvement follows the action that gives the maximum reward, i.e. $R(s_{i}, \pi_{i+1}(s)) = max_aR(s, a)$.
