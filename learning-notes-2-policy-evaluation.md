@@ -1,4 +1,4 @@
-# Key Takeaways from Lecture 3 - Model-free Policy Evaluation
+# Lecture 3 - Model-free Policy Evaluation
 Model-free Policy: Policy Evaluation with no knowledge of how the world works ($P(s'|s)$ and $r(s)$):
 - Monte Carlo Learning
 - Temporal Difference (TD) Learning
