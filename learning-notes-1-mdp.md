@@ -1,4 +1,4 @@
-# Key Takeaways from Lecture 1 & 2
+# Lecture 1 & 2
 ## Markov Assumption
 Assume the next state is only correlated with the current state and current action, i.e.
 
