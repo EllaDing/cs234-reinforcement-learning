@@ -300,6 +300,6 @@ b(s_t) ≈ \mathbb{E}[r_t + r_{t+1} + ... + r_{T-1}]
 $$
 
 #### Different Options for Baseline
-We can pick the $Q$ value for $G_t$, i.e. $Q^\pi(s, a) = r_0 + \sum_1^{\infin} \gamma^{i} r_i$.
+We can pick the $Q$ value for $G_t$, i.e. $Q^\pi(s, a) = \sum_0^{\infin} \gamma^{i} r_i$.
 
 State-value function $\mathbb{V}(s) = \mathbb{E}[Q^\pi(s, a)]$ can serve as a great baseline for $b(s)$.
