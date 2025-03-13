@@ -39,7 +39,7 @@ $$
 
 ### Why Actor-Critic Reduces Variance
 1. **Adaptive Baseline**: Unlike static baselines (e.g., average reward), $ V(s) $ is learned and adapts to the policy’s current performance, offering a more precise reference for action quality.
-2. **Temporal Difference (TD) Learning**: The critic updates $ V(s) $ using TD error $ \delta = r + \gamma V(s') - V(s) $, which provides low-variance, incremental updates. Note: critic can use any combo of MC and TD estimator through multi-step estimator (e.g. first n-step using MC estimator and the rest using bootstrap).
+2. **Temporal Difference (TD) Learning**: The critic updates $ V(s) $ using TD error $ \delta = r + \gamma V(s') - V(s) $, which provides low-variance, incremental updates. Note: critic can use any combo of MC and TD estimator through multi-step estimator.
 3. **Focus on Advantage**: By evaluating actions relative to the state average $ V(s) $, the actor prioritizes actions that outperform the policy’s average behavior, filtering out irrelevant noise.
 
 ---
@@ -59,3 +59,61 @@ $$
 - **Lower Variance**: The critic’s baseline $ V(s) $ provides a stable reference, reducing the noise in gradient estimates.
 - **Faster Convergence**: By leveraging value function approximations, actor-critic methods often learn more efficiently than Monte Carlo-based policy gradients.
 - **Adaptability**: The critic continuously refines its baseline as the policy improves, enabling dynamic credit assignment.
+
+---
+
+### N-step estimator
+N-step estimator in actor-critic methods combines the strengths of Monte Carlo (MC) and Temporal Difference (TD) estimators to balance bias and variance.
+
+It computes the target value for a state $s_t$ by summing $N$ immediate rewards and bootstrapping the remaining return using the critic’s value estimate $V(s_{t+N})$:
+ $$
+  R_t^{(N)} = \sum_{k=0}^{N-1} \gamma^k r_{t+k} + \gamma^N V(s_{t+N}).
+ $$
+  - **MC Component**: Uses $N$-step actual rewards $\sum_{k=0}^{N-1} \gamma^k r_{t+k}$.
+  - **TD Component**: Bootstraps with $\gamma^N V(s_{t+N})$.
+
+#### Bias-Variance Tradeoff
+- **Small $N$** (e.g., TD(0)): Lower variance (fewer rewards) but higher bias (relies on critic’s estimate).
+- **Large $N$** (e.g., MC): Lower bias (more rewards) but higher variance (longer dependency chain).
+
+#### Actor-Critic Integration
+- The critic estimates $V(s)$, which is used to compute $R_t^{(N)}$.
+- The actor updates its policy using the advantage $A(s_t, a_t) = R_t^{(N)} - V(s_t)$.
+
+---
+
+### Choosing the Optimal $N$: Minimizing MSE
+The optimal $N$ minimizes the **Mean Squared Error (MSE)** between the N-step target $R_t^{(N)}$ and the true value $V^\pi(s_t)$:
+$$
+\text{MSE}(N) = \mathbb{E}\left[ \left( R_t^{(N)} - V^\pi(s_t) \right)^2 \right].
+$$
+
+#### MSE Decomposition
+$$
+\text{MSE}(N) = \underbrace{\text{Bias}(N)^2}_{\text{From TD bootstrapping}} + \underbrace{\text{Variance}(N)}_{\text{From MC rewards}}.
+$$
+- **Bias**: Increases as $N \downarrow$ (more reliance on critic).
+- **Variance**: Increases as $N \uparrow$ (more stochastic rewards).
+
+#### Optimal $N$
+The optimal $N$ is where the **sum of bias² and variance is minimized**:
+$$
+N^* = \arg\min_N \left( \text{Bias}(N)^2 + \text{Variance}(N) \right).
+$$
+
+Why using MSE:
+- **MSE as a Proxy for Accuracy**: A low MSE ensures the critic’s estimates $V(s)$ are close to the true values $V^\pi(s)$, improving policy updates.
+- **Bias-Variance Tradeoff**: MSE explicitly balances the two sources of error, unlike metrics like reward maximization, which are confounded by exploration.
+---
+
+### Example: N-Step Advantage Actor-Critic (A2C)
+1. **Critic Update**:
+  $$
+   V_\phi(s_t) \leftarrow V_\phi(s_t) + \alpha \left( R_t^{(N)} - V_\phi(s_t) \right),
+  $$
+   where $R_t^{(N)} = \sum_{k=0}^{N-1} \gamma^k r_{t+k} + \gamma^N V_\phi(s_{t+N})$.
+
+2. **Actor Update**:
+  $$
+   \nabla_\theta J(\theta) \propto \sum_t \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \left( R_t^{(N)} - V_\phi(s_t) \right).
+  $$
