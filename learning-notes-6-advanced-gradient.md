@@ -165,3 +165,32 @@ When using trajectories sampled from $\pi_1$:
 **a. Why Use $\pi_1$’s Data?**
 - The KL divergence is evaluated over states $s \sim d^{\pi_1}(s)$, as $\pi_2$ might visit different states. Using $\pi_1$’s data ensures we measure divergence in regions relevant to $\pi_1$.
 - This avoids needing to sample from $\pi_2$, which could be computationally expensive or unsafe.
+
+#### Appendix 3 - GAE: Generalized Advantage Estimator
+**Generalized Advantage Estimator (GAE)** offers several advantages over using a fixed **N-step estimator** by combining multiple k-step estimators through an exponentially weighted average.
+- **N-step Estimator**: Fixes a single horizon $N$ to combine MC value estimator and TD value estimator.
+- **GAE**: Blends all k-step estimators (from $k=0$ to $k=T$) using a decay factor $\lambda$:
+  $$
+  \hat{A}_{\text{GAE}} = \sum_{k=0}^{T} (\gamma \lambda)^k \delta_{t+k},
+  $$
+  where $\delta_{t} = r_t + \gamma V(s_{t+1}) - V(s_t)$ is the TD error.
+  - **Exponential Decay**: Weights decay as $(\gamma \lambda)^k$, emphasizing shorter-term rewards (lower variance) while still accounting for long-term effects (lower bias).
+  - **Tunable $\lambda$**:
+    - $\lambda \to 0$: Reduces to TD(0) (low variance, high bias).
+    - $\lambda \to 1$: Approaches Monte Carlo (low bias, high variance).
+
+Benefit:
+- **Single Hyperparameter ($\lambda$)**: Adjusting $\lambda$ provides a smooth interpolation between TD(0) and Monte Carlo, simplifying hyperparameter search.
+- **Eligibility Traces**: GAE generalizes TD($\lambda$), a well-studied method for balancing bias and variance.
+- **Principled Weighting**: The $(\gamma \lambda)^k$ decay ensures theoretical consistency with value function approximation.
+- Automatically adapts weighting based on $\lambda$, performing well across diverse tasks (e.g., sparse/dense rewards).
+
+Tradeoffs for $\lambda$ tuning:
+- **Short-Term Rewards**: Lower $k$-steps (weighted more for $\lambda < 1$) provide stable, immediate feedback.
+- **Long-Term Rewards**: Higher $k$-steps (with decaying weights) mitigate myopia without introducing excessive variance.
+
+While GAE seems complex, it can be computed efficiently in $O(T)$ time using dynamic programming:
+  $$
+  \hat{A}_t = \delta_t + \gamma \lambda \hat{A}_{t+1}.
+  $$
+- **Vectorization**: Modern frameworks (e.g., PyTorch, TensorFlow) parallelize these computations.
