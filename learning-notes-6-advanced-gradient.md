@@ -1,5 +1,3 @@
-<script src="https://rawcdn.githack.com/oscarmorrison/md-page/master/md-page.js"></script><noscript>
-
 # Problem of Policy Gradients
 - **Sample Efficiency is Poor**: need many rollouts with the same policy to get good estimates of the gradient.
 - **Distance in the Parameter Space Doesn't Equal to the Policy Space**: The idea is if you have a gradient optimization. When you change your parameter, does it smoothly chance how the policy value change? We want to know wheter it is smooth or not. A small change in the parameter space a little bit may change the action a lot if these 2 space are not proportional.
